@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Server Mod Guide — Valheim 1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@400;500;600&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #16181c;
+    --bg2: #1e2128;
+    --bg3: #252930;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.13);
+    --text: #d4cebc;
+    --text-muted: #7a7567;
+    --text-dim: #9a9282;
+    --accent: #b5924a;
+    --accent-dim: rgba(181,146,74,0.15);
+    --accent-glow: rgba(181,146,74,0.08);
+    --tag-infra: #2a2d35; --tag-infra-text: #6b7280;
+    --tag-prog: #2a1f1a; --tag-prog-text: #c97b4b;
+    --tag-qol: #1a2420; --tag-qol-text: #5a9e7a;
+    --tag-combat: #1f1a2a; --tag-combat-text: #8b6fc9;
+    --tag-build: #1a1f2a; --tag-build-text: #5a7ec9;
+    --tag-world: #1f2a1a; --tag-world-text: #7aaa54;
+    --tag-farm: #2a2018; --tag-farm-text: #c9a03a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 0 48px;
+    align-items: start;
+  }
+
+  /* NAV */
+  .sidenav {
+    position: sticky;
+    top: 32px;
+    padding: 32px 0 32px;
+    grid-column: 1;
+  }
+  .sidenav-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .sidenav a {
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 5px 0 5px 12px;
+    border-left: 1.5px solid var(--border);
+    transition: color 0.15s, border-color 0.15s;
+    line-height: 1.4;
+  }
+  .sidenav a:hover, .sidenav a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+
+  /* MAIN */
+  .main-content {
+    grid-column: 2;
+    padding: 48px 0 96px;
+  }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 56px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: #e8e0cc;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+  }
+  .hero-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .hero-meta span { color: var(--text-dim); }
+  .install-box {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+  .install-box strong { color: var(--text); font-weight: 500; }
+  .install-box a { color: var(--accent); text-decoration: none; }
+  .install-box a:hover { text-decoration: underline; }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 32px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-rune {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--accent);
+    opacity: 0.7;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+  }
+  .section-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c8bfa8;
+  }
+
+  /* MOD CARDS */
+  .mod-list { display: flex; flex-direction: column; gap: 2px; }
+
+  .mod-card {
+    background: transparent;
+    border-radius: 6px;
+    padding: 16px 18px;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .mod-card:hover { background: var(--bg2); }
+
+  .mod-card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .mod-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #e0d8c4;
+  }
+  .mod-name a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(181,146,74,0.3);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .mod-name a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .mod-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .tag-infra { background: var(--tag-infra); color: var(--tag-infra-text); }
+  .tag-prog { background: var(--tag-prog); color: var(--tag-prog-text); }
+  .tag-qol { background: var(--tag-qol); color: var(--tag-qol-text); }
+  .tag-combat { background: var(--tag-combat); color: var(--tag-combat-text); }
+  .tag-build { background: var(--tag-build); color: var(--tag-build-text); }
+  .tag-world { background: var(--tag-world); color: var(--tag-world-text); }
+  .tag-farm { background: var(--tag-farm); color: var(--tag-farm-text); }
+
+  .mod-desc {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+  .mod-desc strong { color: var(--text); font-weight: 500; }
+  .mod-desc .keybind {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 11px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .mod-note {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--tag-prog-text);
+    opacity: 0.85;
+  }
+  .mod-note::before { content: "⚠ "; }
+
+  /* FOOTER */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .footer a { color: var(--text-dim); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .page-wrap { grid-template-columns: 1fr; }
+    .sidenav { display: none; }
+    .main-content { grid-column: 1; padding: 32px 0 64px; }
+    .hero h1 { font-size: 26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- SIDE NAV -->
+  <nav class="sidenav" aria-label="Page sections">
+    <div class="sidenav-label">Sections</div>
+    <a href="#install">Installation</a>
+    <a href="#progression">Progression</a>
+    <a href="#inventory">Inventory &amp; Crafting</a>
+    <a href="#hud">HUD &amp; Navigation</a>
+    <a href="#cartography">Cartography</a>
+    <a href="#combat">Combat &amp; Gear</a>
+    <a href="#building">Building</a>
+    <a href="#farming">Farming &amp; Nature</a>
+    <a href="#utility">Utility</a>
+    <a href="#world">World &amp; Exploration</a>
+    <a href="#launch">Launch Info</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- HERO -->
+    <header class="hero" id="install">
+      <div class="hero-eyebrow">Valheim 1.0 · Deep North</div>
+      <h1>Server Mod Guide</h1>
+      <p class="hero-meta">
+        <span>Launch: September 16, 2026</span> &nbsp;·&nbsp; Fresh world &nbsp;·&nbsp; Boss nights on schedule &nbsp;·&nbsp; <span>Everyone starts together</span>
+      </p>
+      <div class="install-box">
+        <strong>How to install:</strong> Download <a href="https://thunderstore.io/c/valheim/p/ebkr/r2modman/" target="_blank">r2modman</a> or the Thunderstore app. The admin will post a profile code in <strong>#mod-setup</strong> — paste it under <strong>Import / Update Profile</strong> and you'll have every mod at the correct version automatically. Do not install mods manually unless you enjoy debugging dependency hell at midnight.
+      </div>
+    </header>
+
+    <!-- PROGRESSION -->
+    <section class="section" id="progression">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᚱ</span>
+        <h2>Progression</h2>
+      </div>
+      <div class="mod-list">
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/VentureValheim/World_Advancement_Progression/" target="_blank">World Advancement Progression</a></span>
+            <span class="mod-tag tag-prog">Progression</span>
+          </div>
+          <p class="mod-desc">Boss altars are locked by default — you cannot summon a boss until the admin unlocks it. This is the core mechanic keeping everyone on the same timeline. No sneaking off to solo Eikthyr on a Tuesday. When it's boss night and everyone is ready, the admin flips the switch in-game with no server restart required. Boss availability persists with the world save.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- INVENTORY -->
+    <section class="section" id="inventory">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᚷ</span>
+        <h2>Inventory &amp; Crafting</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Azumatt/AzuExtendedPlayerInventory/" target="_blank">AzuExtendedPlayerInventory</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Expands your inventory with extra rows, dedicated equipment slots (your armor no longer eats bag space), quick-access slots, and vanity slots for cosmetic gear. You'll notice it the moment you open your inventory. Controller friendly.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Goldenrevolver/Quick_Stack_Store_Sort_Trash_Restock/" target="_blank">Quick Stack / Sort / Trash / Restock</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">The single most important QoL mod on the list. Open a chest and one button dumps everything that belongs there from your inventory. Sort containers alphabetically or by type. Trash junk from your inventory without dropping it. Restock consumables from nearby chests automatically. You will use this constantly — learn the hotkeys.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Azumatt/AAA_Crafting/" target="_blank">AAA_Crafting</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Adds a quantity input to the crafting menu so you can craft 50 nails in one click instead of clicking 50 times. Also adds a search bar to filter your recipe list. Small change, massive quality-of-life impact.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Azumatt/RecycleN_Reclaim/" target="_blank">Recycle N Reclaim</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Adds a Reclaim tab to the crafting menu. Select any crafted item and recover most of the materials used to make it. Invaluable when you've upgraded biomes and want to recover resources from replaced gear.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Azumatt/AzuContainerSizes/" target="_blank">AzuContainerSizes</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Chest sizes are configurable server-wide. The admin has set them larger than vanilla defaults. Nothing to configure on your end — it applies automatically.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/WhereWeWatched/SmarterContainers/" target="_blank">SmarterContainers</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">When you drop items near a group of chests, they automatically route to whichever chest already contains that item type. Works best when your base storage is organized by category. Pairs naturally with Quick Stack.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Vapok/AdventureBackpacks/" target="_blank">Adventure Backpacks</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Craftable backpacks that occupy the cape slot and add a separate inventory. Different backpack types become available as you progress through biomes — early ones are small, later tiers are substantial. Carry more without hitting encumbrance.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- HUD -->
+    <section class="section" id="hud">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᚾ</span>
+        <h2>HUD &amp; Navigation</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Neobotics/HUDCompass/" target="_blank">HUDCompass</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Adds a compass bar across the top of your screen. As you face different directions it shows nearby map pins, portal locations, ships, and carts relative to your heading. You always know which way things are without opening the full map.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Azumatt/AzuHoverStats/" target="_blank">AzuHoverStats</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Hover over anything in the world — plants, resource nodes, structures, enemies, containers — and get useful info about it. Never guess whether that ore node is worth mining again.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Smoothbrain/TargetPortal/" target="_blank">TargetPortal</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">When you interact with a portal, pick your destination from a list instead of needing matching tags on both ends. Managing a portal network for a whole group becomes easy. No more renaming portals to get the tags to line up.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Nextek/SpeedyPaths/" target="_blank">SpeedyPaths</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Moving on paths and stone roads you've built is faster and costs less stamina to sprint. A small status icon appears when the buff is active. Rewards the group for actually investing in road infrastructure between your bases and resource sites.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CARTOGRAPHY -->
+    <section class="section" id="cartography">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᛗ</span>
+        <h2>Cartography</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/nbusseneau/Better_Cartography_Table/" target="_blank">Better Cartography Table</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">The vanilla cartography table dumps all your pins to everyone with no control. This mod lets you mark pins as <strong>Private</strong> (only you see them), <strong>Public</strong> (shared to the table), or <strong>Guild</strong> (shared within your group). Interact with a cartography table at base to sync shared map exploration and pins. Build one early.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Smoothbrain/CartographySkill/" target="_blank">Cartography Skill</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">New skill that increases your map exploration radius as it levels. Dedicated scouts will reveal more of the map per step than everyone else. Levels naturally as you explore — no special action required.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- COMBAT -->
+    <section class="section" id="combat">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᛏ</span>
+        <h2>Combat &amp; Gear</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Therzie/Warfare/" target="_blank">Warfare</a> + <a href="https://thunderstore.io/c/valheim/p/Therzie/WarfareFireAndIce/" target="_blank">WarfareFireAndIce</a></span>
+            <span class="mod-tag tag-combat">Combat</span>
+          </div>
+          <p class="mod-desc">Fills in the missing weapon and shield tiers across all biomes including the Deep North. If you've played vanilla and noticed odd gaps in progression — no sword upgrade between Black Forest and Swamp, for example — this closes them. Substantially more build variety for melee and ranged builds.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Therzie/Wizardry/" target="_blank">Wizardry</a></span>
+            <span class="mod-tag tag-combat">Combat</span>
+          </div>
+          <p class="mod-desc">Full magic system — staves, wands, scrolls, potions, and mage-tier armor sets. If you want to play a caster instead of a melee fighter this is your mod. Spells are gated behind biome progression so you won't have endgame staves in Meadows. Pairs with EpicLoot for magic weapon drops.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Therzie/Armory/" target="_blank">Armory</a></span>
+            <span class="mod-tag tag-combat">Combat</span>
+          </div>
+          <p class="mod-desc">Adds an Armory forge that lets you craft alternate variants of existing armor sets — each variant upgrades into the next biome tier. Means you're not forced to abandon your aesthetic every time you advance. Craft the Armory forge once you have an Iron Smelter.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/ishid4/BetterArchery/" target="_blank">BetterArchery</a></span>
+            <span class="mod-tag tag-combat">Combat</span>
+          </div>
+          <p class="mod-desc">Bow gameplay overhaul. Adds a dedicated quiver slot, new arrow types including elemental variants, a sneak damage indicator (like Skyrim), and a configurable movement speed penalty while drawing. If you're playing a bow build this replaces the feel of vanilla archery entirely. Check <span class="keybind">BepInEx/config</span> for keybinds.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Therzie/Monstrum/" target="_blank">Monstrum</a> + <a href="https://thunderstore.io/c/valheim/p/Therzie/MonstrumDeepNorth/" target="_blank">MonstrumDeepNorth</a></span>
+            <span class="mod-tag tag-combat">Combat</span>
+          </div>
+          <p class="mod-desc">New monsters, mini-bosses, and tameable creatures throughout Mistlands and into the Deep North. Some mini-bosses drop unique loot. Several new creatures can be tamed. Expect encounters vanilla doesn't have, especially in later biomes.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/RandyKnapp/EpicLoot/" target="_blank">EpicLoot</a></span>
+            <span class="mod-tag tag-combat">Combat</span>
+          </div>
+          <p class="mod-desc">Enemies drop magic items with randomized affixes — extra damage, resistances, skill bonuses, and more. Rarity tiers run from Magic through Rare, Epic, and Legendary. You can also enchant gear at a special altar using runestones. The trader offers bounties (kill targets for magic rewards) and treasure hunt maps. Adds a loot-hunting loop on top of the base crafting progression.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/JewelHeim/EpicLoot_Therzie/" target="_blank">EpicLoot_Therzie</a></span>
+            <span class="mod-tag tag-infra">Compat</span>
+          </div>
+          <p class="mod-desc">Compatibility patch that makes EpicLoot drops work correctly with Warfare, Monstrum, Wizardry, and Armory items. Nothing to interact with — it just needs to be installed.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Smoothbrain/CreatureLevelAndLootControl/" target="_blank">CreatureLevelAndLootControl</a></span>
+            <span class="mod-tag tag-combat">Combat</span>
+          </div>
+          <p class="mod-desc">Enemies can spawn with up to 5 stars instead of vanilla's 2. Higher star enemies are physically larger, hit harder, and have more health. Also adds elemental infusions — a fire-infused enemy ignites you on hit and resists fire damage; a frost-infused one freezes you; spirit-infused heals itself, and so on. The server config controls how aggressively this scales. <strong>See the Open Votes section</strong> — the group is deciding the difficulty level.</p>
+          <p class="mod-note">Paired with EpicLoot, an aggressive CLLC config can make early game brutal until magic gear starts dropping.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BUILDING -->
+    <section class="section" id="building">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᚩ</span>
+        <h2>Building</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/MathiasDecrock/PlanBuild/" target="_blank">PlanBuild</a></span>
+            <span class="mod-tag tag-build">Building</span>
+          </div>
+          <p class="mod-desc">Two major features. First, a blueprint mode: craft the Blueprint Rune at a workbench, then plan out entire builds as ghost pieces without spending any materials. Fill in the resources later when you're ready. Second, copy any existing structure into a blueprint and paste it elsewhere — or share it with the group. Game-changing for anyone doing serious construction.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/OdinPlus/OdinArchitect/" target="_blank">OdinArchitect</a></span>
+            <span class="mod-tag tag-build">Building</span>
+          </div>
+          <p class="mod-desc">Adds larger counterparts of core building pieces — bigger beams, wider floor tiles, taller walls — plus entirely new structural options. Craft <strong>Odin's Hammer</strong> at a workbench (requires wood + stone) to access the new build category. Required if you want to build anything that doesn't look like a medieval studio apartment.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/BentoG/MissingPieces/" target="_blank">MissingPieces</a></span>
+            <span class="mod-tag tag-build">Building</span>
+          </div>
+          <p class="mod-desc">Fills in building pieces that clearly should exist in vanilla but don't — corner trims, half-pieces, transition pieces, and other gaps. They appear in your existing build menus without a new crafting station.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/ComfyMods/SearsCatalog/" target="_blank">SearsCatalog</a></span>
+            <span class="mod-tag tag-build">Building</span>
+          </div>
+          <p class="mod-desc">Lets you resize and reposition the build piece panel in-game. With all the building mods installed the panel gets crowded — this lets you make it bigger or move it to where you want it.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Nextek/FloorsAreRoofs/" target="_blank">FloorsAreRoofs</a></span>
+            <span class="mod-tag tag-build">Building</span>
+          </div>
+          <p class="mod-desc">Floors count as roofs for the shelter and rested mechanics. Your enclosed multi-story base actually gives the comfort bonus without needing a separate roof layer floating above every floor.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FARMING -->
+    <section class="section" id="farming">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᛖ</span>
+        <h2>Farming &amp; Nature</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Advize/PlantEasily/" target="_blank">PlantEasily</a></span>
+            <span class="mod-tag tag-farm">Farming</span>
+          </div>
+          <p class="mod-desc">Grid planting with the cultivator — hold and drag to plant crops in perfectly spaced rows and columns all at once. Bulk harvest everything in an area in one interaction. Optional auto-replant after harvesting. Your farm will look like a real farm and take a fraction of the time to manage.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Advize/PlantEverything/" target="_blank">PlantEverything</a></span>
+            <span class="mod-tag tag-farm">Farming</span>
+          </div>
+          <p class="mod-desc">Expands the cultivator to plant berry bushes, mushrooms, thistle, dandelions, multiple tree types not normally plantable, and other decorative flora. Build a sustainable food supply from base without endless foraging runs. Designed to complement PlantEasily — zero conflicts between them.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/blacks7ar/SeedBed/" target="_blank">SeedBed</a></span>
+            <span class="mod-tag tag-farm">Farming</span>
+          </div>
+          <p class="mod-desc">Plant seeds in a small dedicated seedbed without mass-cultivating large land areas. Reduces the server lag that massive cultivated farms generate on multiplayer. Use this for your seed stock; use PlantEasily for main crop rows.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Goldenrevolver/PetPantry/" target="_blank">PetPantry</a></span>
+            <span class="mod-tag tag-farm">Farming</span>
+          </div>
+          <p class="mod-desc">Tamed animals auto-feed from nearby containers. Put food in a chest close to your pen, walk away. Boars, wolves, and lox eat on their own schedule. Your entire animal operation runs without babysitting.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- UTILITY -->
+    <section class="section" id="utility">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᚠ</span>
+        <h2>Utility &amp; Misc</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Smoothbrain/PassivePowers/" target="_blank">PassivePowers</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Boss powers are always active as weaker passives — you don't equip them or swap between them. Press the power button for a short burst of the full effect when you need it. Set it and forget it; you get value from every boss you've defeated at all times.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/ZenDragon/ZenItemStands/" target="_blank">ZenItemStands</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Item stands and armor stands behave like containers. Walk up and swap gear from them with a single button — no dropping items on the stand. Great for a gear wall at base where you cycle between loadouts.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/maximalcompendium/FuelEternal/" target="_blank">FuelEternal</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Torches, campfires, and hearths burn forever without needing fuel. Nobody comes home to a dark, cold longhouse. You can still add fuel manually if you want — it just isn't required.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/blacks7ar/BetterWisplight/" target="_blank">Better Wisplight</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Doubles the wisplight's mist-clearing radius in Mistlands. The vanilla radius is so small it's practically useless. This makes the biome feel like navigation rather than walking blind.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/OdinPlus/Shipwright/" target="_blank">Shipwright</a> + <a href="https://thunderstore.io/c/valheim/p/OdinPlus/ShipwrightsTouch/" target="_blank">ShipwrightsTouch</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Shipwright lets you repair ships in the water with a hammer and bucket — no crafting station, no dragging to shore. ShipwrightsTouch adds custom ship naming and sail color customization. The <em>Soggy Odin</em> deserves a proper identity.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/blacks7ar/TubaWalk/" target="_blank">TubaWalk</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">Festive tuba music plays when you are overencumbered. This is not a joke. It stays on the server.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- WORLD -->
+    <section class="section" id="world">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᛚ</span>
+        <h2>World &amp; Exploration</h2>
+      </div>
+      <div class="mod-list">
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Azumatt/MoreWorldLocations_AllBiomes/" target="_blank">More World Locations AIO</a></span>
+            <span class="mod-tag tag-world">World</span>
+          </div>
+          <p class="mod-desc">Adds 178 new points of interest across all biomes — trader outposts, harbor ruins, puzzle locations, shrines, and more. The world between major locations feels substantially less empty. Explore thoroughly; there are things worth finding.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Soloredis/RtDOcean/" target="_blank">RtDOcean</a></span>
+            <span class="mod-tag tag-world">World</span>
+          </div>
+          <p class="mod-desc">Turns the ocean into a real content zone. New sea creatures (friendly and hostile), underwater exploration areas, ocean-based foods and crafting recipes, relic collection, and a full ocean boss encounter. The ocean is no longer just empty water between land masses.</p>
+          <p class="mod-note">Requires UnderTheSea to access underwater content.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Searica/UnderTheSea/" target="_blank">UnderTheSea</a></span>
+            <span class="mod-tag tag-world">World</span>
+          </div>
+          <p class="mod-desc">Adds actual diving mechanics. <strong>Hold crouch</strong> to dive deeper, <strong>hold jump</strong> to surface, <strong>hold run</strong> to accelerate underwater. Stamina drains while submerged — bring food before exploring deep. Required companion to RtDOcean.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/RustyMods/Seasonality/" target="_blank">Seasonality</a></span>
+            <span class="mod-tag tag-world">World</span>
+          </div>
+          <p class="mod-desc">Dynamic seasons cycle over in-game time, altering textures and colors across every biome — spring greens, summer gold, autumn reds, winter white. Each season changes the visual feel of the world substantially. Winters are stunning. Performance impact is minimal on modern hardware.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Marlthon/OdinShip/" target="_blank">OdinShip</a></span>
+            <span class="mod-tag tag-world">World</span>
+          </div>
+          <p class="mod-desc">Adds multiple new ships across cargo and warship categories, a dedicated <strong>Carpenters Table</strong> crafting station for advanced shipbuilding, and harbor decoration pieces. More options at every tier of sailing progression. The vanilla longship gets lonely.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/Smoothbrain/Sailing/" target="_blank">Sailing Skill</a></span>
+            <span class="mod-tag tag-world">World</span>
+          </div>
+          <p class="mod-desc">New skill that improves ship health, sailing speed, and map exploration radius as it levels. Levels by spending time sailing. The group's dedicated helmsman will pull ahead on this skill quickly.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/CookieMilk/MagicalMounts/" target="_blank">MagicalMounts</a></span>
+            <span class="mod-tag tag-world">World</span>
+          </div>
+          <p class="mod-desc">Rideable horses, wolves, deer, unicorns, pegasi, ravens, and dragons — each with several color variants. Unlock mounts by finding and using book items in the world. Ground mounts are a fun travel upgrade. Flying mounts (pegasi, ravens, dragons) can skip terrain and trivialize exploration.</p>
+          <p class="mod-note">Flying mounts (pegasi, ravens, dragons) can trivialize exploration — the group is deciding this in Discord. Check #server-votes.</p>
+        </div>
+
+        <div class="mod-card">
+          <div class="mod-card-header">
+            <span class="mod-name"><a href="https://thunderstore.io/c/valheim/p/RustyMods/ChangeOfScenery/" target="_blank">ChangeOfScenery</a></span>
+            <span class="mod-tag tag-qol">QoL</span>
+          </div>
+          <p class="mod-desc">New visuals on the main menu. Small thing, nice first impression.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LAUNCH INFO -->
+    <section class="section" id="launch" style="margin-bottom: 0;">
+      <div class="section-header">
+        <span class="section-rune" aria-hidden="true">ᛟ</span>
+        <h2>Launch &amp; Timing</h2>
+      </div>
+      <div style="background: var(--bg2); border: 1px solid var(--border2); border-left: 3px solid var(--accent); border-radius: 6px; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <div style="font-size: 11px; font-family: 'Cinzel', serif; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Target date</div>
+          <div style="font-size: 15px; color: var(--text);">September 16, 2026 — <span style="color: var(--text-dim);">treat this as tentative</span></div>
+        </div>
+        <p style="font-size: 13.5px; color: var(--text-dim); line-height: 1.7;">Valheim 1.0 drops September 9th, but every mod on this list needs to be updated by its author after the patch lands. Some will update same-day. Others will take a week or two. Some may turn out to be broken or incompatible with the new build and get cut from the list entirely — or swapped out for something else.</p>
+        <p style="font-size: 13.5px; color: var(--text-dim); line-height: 1.7;"><strong style="color: var(--text); font-weight: 500;">We are not starting until the mod stack is stable.</strong> Realistically that means launching a week or two after September 9th, not on day one. Watch <strong style="color: var(--text); font-weight: 500;">#valheim</strong> for updates — that's where the go/no-go call will be posted and where the final r2modman profile code will drop.</p>
+      </div>
+    </section>
+
+    <footer class="footer" style="margin-top: 48px;">
+      This mod list is current as of June 2026 and subject to change after 1.0 drops. Check <strong>#valheim</strong> for the latest.
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // Active nav highlight on scroll
+  const sections = document.querySelectorAll('section[id], header[id]');
+  const navLinks = document.querySelectorAll('.sidenav a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
